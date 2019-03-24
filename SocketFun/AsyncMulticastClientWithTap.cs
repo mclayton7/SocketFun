@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,11 +28,19 @@ namespace SocketFun
             MulticastAddress = multicastAddress;
             Port = port;
 
-            Client = new UdpClient()
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                ExclusiveAddressUse = false
-            };
-            Client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
+                Client = new UdpClient(port);
+            }
+            else
+            {
+                Client = new UdpClient
+                {
+                    ExclusiveAddressUse = false
+                };
+                Client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
+            }
+
             CancellationSource = new CancellationTokenSource();
 
             Console.WriteLine(

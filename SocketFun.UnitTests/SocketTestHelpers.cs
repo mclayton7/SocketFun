@@ -2,13 +2,14 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 
 namespace SocketFun.UnitTests
 {
     public static class SocketTestHelpers
     {
-        public static IPAddress LocalAddress = IPAddress.Parse("192.168.32.128");
+        public static IPAddress LocalAddress = IPAddress.Parse("192.168.1.3");
         public static Socket CreateMulticastSocket(IPAddress address, int port)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -18,7 +19,9 @@ namespace SocketFun.UnitTests
             socket.ExclusiveAddressUse = false;
             try
             {
-                socket.Bind(new IPEndPoint(IPAddress.Any, port));
+                socket.Bind(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? new IPEndPoint(LocalAddress, port)
+                    : new IPEndPoint(IPAddress.Any, port));
             }
             catch(Exception)
             {

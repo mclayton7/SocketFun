@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace SocketFun
 {
@@ -11,21 +12,27 @@ namespace SocketFun
         private IPAddress MulticastAddress { get; }
         private int Port { get; }
         private readonly UdpClient Client;
-        private bool isQuitting = false;
+        private bool isQuitting;
 
         public AsyncMulticastClientWithEvents(IPAddress multicastAddress, int port)
         {
             MulticastAddress = multicastAddress;
             Port = port;
-            Client = new UdpClient()
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                ExclusiveAddressUse = false
-            };
-            Client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
+                Client = new UdpClient(port);
+            }
+            else
+            {
+                Client = new UdpClient
+                {
+                    ExclusiveAddressUse = false
+                };
+                Client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
+            }
 
             var localIpAddresses = NetworkHelpers.GetIpAddresses();
             foreach (var localIpAddress in localIpAddresses)
-            {
                 try
                 {
                     Client.JoinMulticastGroup(multicastAddress, localIpAddress);
@@ -35,7 +42,6 @@ namespace SocketFun
                 {
                     Console.WriteLine($"{localIpAddress} Did not work");
                 }
-            }
 
             Client.BeginReceive(ReceiveCallback, null);
         }
@@ -45,7 +51,7 @@ namespace SocketFun
             Client.SendAsync(bytes, bytes.Length, new IPEndPoint(MulticastAddress, Port));
         }
 
-        public void ReceiveCallback(IAsyncResult ar)  
+        public void ReceiveCallback(IAsyncResult ar)
         {
             var endpoint = new IPEndPoint(MulticastAddress, Port);
             try
@@ -62,7 +68,7 @@ namespace SocketFun
                 Console.WriteLine(e);
                 throw;
             }
-            
+
             Console.WriteLine($"Endpoint: {endpoint}");
 
             Client?.BeginReceive(ReceiveCallback, null);
