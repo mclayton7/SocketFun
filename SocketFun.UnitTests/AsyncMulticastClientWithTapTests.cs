@@ -73,8 +73,7 @@ namespace SocketFun.UnitTests
             socket.SendTo(expectedBytes, new IPEndPoint(MulticastAddress, Port));
             socket.SendTo(expectedBytes, new IPEndPoint(MulticastAddress, Port));
 
-            Thread.Sleep(4000);
-            Assert.That(resultingBytes.Count, Is.EqualTo(2));
+            Assert.That(() => resultingBytes.Count, Is.EqualTo(2).After(4000, 100));
             socket.Close();
             uut.Dispose();
         }
