@@ -17,7 +17,11 @@ namespace SocketFun
         {
             MulticastAddress = multicastAddress;
             Port = port;
-            Client = new UdpClient(port);
+            Client = new UdpClient()
+            {
+                ExclusiveAddressUse = false
+            };
+            Client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
 
             var localIpAddresses = NetworkHelpers.GetIpAddresses();
             foreach (var localIpAddress in localIpAddresses)
