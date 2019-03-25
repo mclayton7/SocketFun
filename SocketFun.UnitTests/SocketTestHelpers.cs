@@ -9,7 +9,7 @@ namespace SocketFun.UnitTests
 {
     public static class SocketTestHelpers
     {
-        public static IPAddress LocalAddress = IPAddress.Parse("192.168.1.31");
+        public static IPAddress LocalAddress = IPAddress.Parse("192.168.32.128");
         public static Socket CreateMulticastSocket(IPAddress multicastAddress, int port)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

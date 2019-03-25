@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace SocketFun
 {
@@ -29,8 +30,20 @@ namespace SocketFun
             {
                 try
                 {
-                    //var client = new UdpClient(new IPEndPoint(localIpAddress, port));
-                    var client = new UdpClient(port);
+                    UdpClient client = null;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        client = new UdpClient(port);
+                    }
+                    else
+                    {
+                        client = new UdpClient
+                        {
+                            ExclusiveAddressUse = false
+                        };
+                        client.Client.Bind(new IPEndPoint(IPAddress.Any, Port));
+                    }
+
                     Console.WriteLine($"Trying to join {multicastAddress} on {localIpAddress}");
                     client.JoinMulticastGroup(multicastAddress, localIpAddress);
 
