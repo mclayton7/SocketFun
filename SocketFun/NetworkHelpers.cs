@@ -17,5 +17,17 @@ namespace SocketFun
                 where ip.Address.AddressFamily == AddressFamily.InterNetwork
                 select ip.Address).ToList();
         }
+
+        public static IEnumerable<IPAddress> GetOtherIpAddresses()
+        {
+            return (from network in NetworkInterface.GetAllNetworkInterfaces()
+                select network.GetIPProperties()
+                into properties
+                from address in properties.UnicastAddresses
+                where address.Address.AddressFamily == AddressFamily.InterNetwork
+                where !IPAddress.IsLoopback(address.Address)
+                where !address.Address.ToString().Contains("169.254")
+                select address.Address).ToList();
+        }
     }
 }

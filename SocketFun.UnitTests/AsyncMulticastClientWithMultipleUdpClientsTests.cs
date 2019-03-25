@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using NUnit.Framework;
 
 namespace SocketFun.UnitTests
 {
-    public class AsyncMulticastClientWithEventsTests
+    [TestFixture]
+    public class AsyncMulticastClientWithMultipleUdpClientsTests
     {
-        private const int Port = 3002;
+        private const int Port = 3003;
         private readonly IPAddress MulticastAddress = IPAddress.Parse("225.0.100.1");
         private const int PacketSize = 8192;
 
@@ -20,7 +20,7 @@ namespace SocketFun.UnitTests
         [Test]
         public void WillSendPackets()
         {
-            var uut = new AsyncMulticastClientWithEvents(MulticastAddress, Port);
+            var uut = new AsyncMulticastClientWithMultipleUdpClients(MulticastAddress, Port);
             var socket = SocketTestHelpers.CreateMulticastSocket(MulticastAddress, Port);
             var bytes = SocketTestHelpers.RandomBytes(PacketSize);
             var buffer = new byte[PacketSize];
@@ -36,9 +36,10 @@ namespace SocketFun.UnitTests
         }
 
         [Test]
+
         public void WillReceivePackets()
         {
-            var uut = new AsyncMulticastClientWithEvents(MulticastAddress, Port);
+            var uut = new AsyncMulticastClientWithMultipleUdpClients(MulticastAddress, Port);
             var socket = SocketTestHelpers.CreateMulticastSocket(MulticastAddress, Port);
             var expectedBytes = SocketTestHelpers.RandomBytes(256);
             var resultingBytes = new byte[0];
@@ -59,7 +60,7 @@ namespace SocketFun.UnitTests
         [Test]
         public void WillReceiveMultiplePackets()
         {
-            var uut = new AsyncMulticastClientWithEvents(MulticastAddress, Port);
+            var uut = new AsyncMulticastClientWithMultipleUdpClients(MulticastAddress, Port);
             var socket = SocketTestHelpers.CreateMulticastSocket(MulticastAddress, Port);
             var expectedBytes = SocketTestHelpers.RandomBytes(PacketSize);
             var resultingBytes = new List<byte[]>();
